@@ -20,6 +20,9 @@
             "tests/"
         ]
     },
+    "scripts": {
+        "test": "phpunit"
+    },
     "authors": [{
         "name": "Postmark",
         "email": "support@postmarkapp.com"

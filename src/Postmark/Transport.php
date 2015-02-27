@@ -9,6 +9,9 @@ use Swift_Transport;
 
 class Transport implements Swift_Transport {
 
+	protected $version = "Unknown PHP version";
+	protected $os = "Unknown OS";
+
 	/**
 	 * The Postmark Server Token key.
 	 *
@@ -24,6 +27,8 @@ class Transport implements Swift_Transport {
 	 */
 	public function __construct($serverToken) {
 		$this->serverToken = $serverToken;
+		$this->version = phpversion();
+		$this->os = PHP_OS;
 	}
 
 	/**
@@ -53,9 +58,13 @@ class Transport implements Swift_Transport {
 	public function send(Swift_Mime_Message $message, &$failedRecipients = null) {
 		$client = $this->getHttpClient();
 
+		$v = $this->version;
+		$o = $this->os;
+
 		return $client->post('https://api.postmarkapp.com/email', [
 			'headers' => [
 				'X-Postmark-Server-Token' => $this->serverToken,
+				'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
 			],
 			'json' => $this->getMessagePayload($message),
 		]);

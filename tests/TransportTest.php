@@ -25,12 +25,16 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$client = $this->getMock('GuzzleHttp\Client', array('post'));
 		$transport->setHttpClient($client);
 
+		$o = PHP_OS;
+		$v = phpversion();
+
 		$client->expects($this->once())
 		       ->method('post')
 		       ->with($this->equalTo('https://api.postmarkapp.com/email'),
 			       $this->equalTo([
 				        'headers' => [
 					        'X-Postmark-Server-Token' => 'TESTING_SERVER',
+					        'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
 				        ],
 				        'json' => [
 					        'From' => '"Johnny #5" <johnny5@example.com>',

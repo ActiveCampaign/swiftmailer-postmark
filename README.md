@@ -1,4 +1,4 @@
-**Looking for Laravel support?** Head on over here: https://github.com/wildbit/laravel-postmark-provider
+**Looking for _Laravel_ support?** Head on over here: https://github.com/wildbit/laravel-postmark-provider
 
 # swiftmailer-postmark 
 [![Build Status](https://travis-ci.org/wildbit/swiftmailer-postmark.svg?branch=master)](https://travis-ci.org/wildbit/swiftmailer-postmark)

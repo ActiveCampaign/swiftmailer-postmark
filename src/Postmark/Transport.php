@@ -61,9 +61,10 @@ class Transport implements Swift_Transport {
 		$v = $this->version;
 		$o = $this->os;
 
-		return $client->post('https://api.postmarkapp.com/email', [
+		return $client->request('POST','https://api.postmarkapp.com/email', [
 			'headers' => [
 				'X-Postmark-Server-Token' => $this->serverToken,
+				'Content-Type' => 'application/json',
 				'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
 			],
 			'json' => $this->getMessagePayload($message),

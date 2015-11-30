@@ -14,7 +14,10 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$message->addBcc('another+3@example.com');
 		$message->addBcc('another+4@example.com', 'Extra 4');
 		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
-		$message->attach(Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain'));
+
+		$attachment = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
+		
+		$message->attach($attachment);
 		$message->setPriority(1);
 
 		$headers = $message->getHeaders();
@@ -36,6 +39,7 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 				        'headers' => [
 					        'X-Postmark-Server-Token' => 'TESTING_SERVER',
 					        'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
+					        'Content-Type' => 'application/json'
 				        ],
 				        'json' => [
 					        'From' => '"Johnny #5" <johnny5@example.com>',
@@ -55,6 +59,7 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 							        'ContentType' => 'text/plain',
 							        'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
 							        'Name' => 'hello.txt',
+							        'ContentID' => 'cid:'. $attachment->getId()
 						        ],
 					        ],
 				        ],

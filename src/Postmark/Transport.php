@@ -183,6 +183,7 @@ class Transport implements Swift_Transport {
 						'Name' => $attachment->getFilename(),
 						'Content' => base64_encode($attachment->getBody()),
 						'ContentType' => $attachment->getContentType(),
+						'ContentID' => 'cid:'.$attachment->getId(),
 					);
 				}
 			}

@@ -184,10 +184,10 @@ class Transport implements Swift_Transport {
 						'Content' => base64_encode($attachment->getBody()),
 						'ContentType' => $attachment->getContentType(),
 					);
-					if($attachment->getDisposition() != 'attachment' && .$attachment->getId() != NULL) {
-						$a['ContentID'] = 'cid:'.$attachment->getId(),
+					if($attachment->getDisposition() != 'attachment' && $attachment->getId() != NULL) {
+						$a['ContentID'] = 'cid:'.$attachment->getId();
 					}
-					$payload['Attachments'][] = $a
+					$payload['Attachments'][] = $a;
 				}
 			}
 		}

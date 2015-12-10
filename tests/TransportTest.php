@@ -16,8 +16,11 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
 
 		$attachment = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		
+		$attachment2 = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
+		$attachment2->setDisposition('inline');
+
 		$message->attach($attachment);
+		$message->attach($attachment2);
 		$message->setPriority(1);
 
 		$headers = $message->getHeaders();
@@ -58,8 +61,13 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 						        [
 							        'ContentType' => 'text/plain',
 							        'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
+							        'Name' => 'hello.txt'
+						        ],
+						        [
+							        'ContentType' => 'text/plain',
+							        'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
 							        'Name' => 'hello.txt',
-							        'ContentID' => 'cid:'. $attachment->getId()
+							        'ContentID' => 'cid:'.$attachment2->getId()
 						        ],
 					        ],
 				        ],

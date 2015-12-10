@@ -179,12 +179,15 @@ class Transport implements Swift_Transport {
 			$payload['Attachments'] = array();
 			foreach ($message->getChildren() as $attachment) {
 				if (is_object($attachment) and $attachment instanceof \Swift_Mime_Attachment) {
-					$payload['Attachments'][] = array(
+					$a = array(
 						'Name' => $attachment->getFilename(),
 						'Content' => base64_encode($attachment->getBody()),
 						'ContentType' => $attachment->getContentType(),
-						'ContentID' => 'cid:'.$attachment->getId(),
 					);
+					if($attachment->getDisposition() != 'attachment' && .$attachment->getId() != NULL) {
+						$a['ContentID'] = 'cid:'.$attachment->getId(),
+					}
+					$payload['Attachments'][] = $a
 				}
 			}
 		}

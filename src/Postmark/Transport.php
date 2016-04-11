@@ -161,6 +161,7 @@ class Transport implements Swift_Transport {
 		switch ($message->getContentType()) {
 			case 'text/html':
 			case 'multipart/alternative':
+			case 'multipart/mixed':
 				$payload['HtmlBody'] = $message->getBody();
 				break;
 			default:

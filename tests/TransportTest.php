@@ -5,8 +5,9 @@ require_once __DIR__ . "/../vendor/autoload.php";
 class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 
 	public function testSend() {
-		$message = new Swift_Message('Is alive!', 'Doo-wah-ditty.');
+		$message = new Swift_Message();
 		$message->setFrom('johnny5@example.com', 'Johnny #5');
+		$message->setSubject('Is alive!');
 		$message->addTo('you@example.com', 'A. Friend');
 		$message->addTo('you+two@example.com');
 		$message->addCc('another+1@example.com');
@@ -14,6 +15,7 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$message->addBcc('another+3@example.com');
 		$message->addBcc('another+4@example.com', 'Extra 4');
 		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
+		$message->addPart('Doo-wah-ditty.', 'text/plain');
 
 		$attachment = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
 		$attachment2 = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');

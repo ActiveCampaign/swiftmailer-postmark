@@ -26,6 +26,7 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$message->setPriority(1);
 
 		$headers = $message->getHeaders();
+		$headers->addTextHeader('X-PM-Tag', 'movie-quotes');
 		$messageId = $headers->get('Message-ID')->getId();
 
 		$transport = new PostmarkTransportStub('TESTING_SERVER');
@@ -52,6 +53,7 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 					        'Cc' => 'another+1@example.com,"Extra 2" <another+2@example.com>',
 					        'Bcc' => 'another+3@example.com,"Extra 4" <another+4@example.com>',
 					        'Subject' => 'Is alive!',
+					        'Tag' => 'movie-quotes',
 					        'TextBody' => 'Doo-wah-ditty.',
 					        'HtmlBody' => '<q>Help me Rhonda</q>',
 					        'Headers' => [

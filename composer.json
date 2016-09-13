@@ -6,7 +6,7 @@
     "name": "wildbit/swiftmailer-postmark",
     "description": "A Swiftmailer Transport for Postmark.",
     "require": {
-        "swiftmailer/swiftmailer": "~5.1",
+        "swiftmailer/swiftmailer": ">=4.1.5",
         "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {

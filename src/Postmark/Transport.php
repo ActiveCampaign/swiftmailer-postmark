@@ -68,6 +68,7 @@ class Transport implements Swift_Transport {
 				'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
 			],
 			'json' => $this->getMessagePayload($message),
+			'http_errors' => false,
 		]);
 	}
 

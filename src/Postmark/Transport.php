@@ -57,6 +57,7 @@ class Transport implements Swift_Transport {
 	 */
 	public function send(Swift_Mime_Message $message, &$failedRecipients = null) {
 		$client = $this->getHttpClient();
+		$client->setDefaultOption('exceptions', false);
 
 		$v = $this->version;
 		$o = $this->os;

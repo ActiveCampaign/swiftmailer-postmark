@@ -57,8 +57,7 @@ class Transport implements Swift_Transport {
 	 *
      * @return bool
      */
-    public function ping()
-	{
+    public function ping() {
 		return true;
 	}
 
@@ -71,7 +70,7 @@ class Transport implements Swift_Transport {
 		$v = $this->version;
 		$o = $this->os;
 
-		return $client->request('POST','https://api.postmarkapp.com/email', [
+        $response = $client->request('POST','https://api.postmarkapp.com/email', [
 			'headers' => [
 				'X-Postmark-Server-Token' => $this->serverToken,
 				'Content-Type' => 'application/json',
@@ -80,7 +79,28 @@ class Transport implements Swift_Transport {
 			'json' => $this->getMessagePayload($message),
 			'http_errors' => false,
 		]);
+
+        if ($response->getStatusCode() !== 200) {
+            return 0;
+        }
+
+        return $this->getRecipientCount($message);
 	}
+
+    /**
+	 * Get the number of recipients for a message
+	 *
+     * @param Swift_Mime_SimpleMessage $message
+     * @return int
+     */
+    private function getRecipientCount(Swift_Mime_SimpleMessage $message): int
+    {
+        return (
+            count((array)$message->getTo())
+            + count((array)$message->getCc())
+            + count((array)$message->getBcc())
+        );
+    }
 
 	/**
 	 * Convert email dictionary with emails and names
@@ -289,5 +309,3 @@ class Transport implements Swift_Transport {
 	}
 
 }
-
-?>

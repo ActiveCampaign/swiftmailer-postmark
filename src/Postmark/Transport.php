@@ -4,7 +4,7 @@ namespace Postmark;
 
 use GuzzleHttp\Client;
 use Swift_Events_EventListener;
-use Swift_Mime_Message;
+use Swift_Mime_SimpleMessage;
 use Swift_Transport;
 
 class Transport implements Swift_Transport {
@@ -52,10 +52,20 @@ class Transport implements Swift_Transport {
 		return true;
 	}
 
+    /**
+	 * Not used
+	 *
+     * @return bool
+     */
+    public function ping()
+	{
+		return true;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
-	public function send(Swift_Mime_Message $message, &$failedRecipients = null) {
+	public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null) {
 		$client = $this->getHttpClient();
 
 		$v = $this->version;
@@ -94,11 +104,11 @@ class Transport implements Swift_Transport {
 	 * Excludes parts of type \Swift_Mime_Attachment as those
 	 * are handled later.
 	 *
-	 * @param  Swift_Mime_Message  $message
+	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @param  string              $mimeType
 	 * @return Swift_Mime_MimePart
 	 */
-	private function getMIMEPart(\Swift_Mime_Message $message, $mimeType) {
+	private function getMIMEPart(Swift_Mime_SimpleMessage $message, $mimeType) {
 		foreach ($message->getChildren() as $part) {
 			if (strpos($part->getContentType(), $mimeType) === 0 && !($part instanceof \Swift_Mime_Attachment)) {
 				return $part;
@@ -109,10 +119,10 @@ class Transport implements Swift_Transport {
 	/**
 	 * Convert a Swift Mime Message to a Postmark Payload.
 	 *
-	 * @param  Swift_Mime_Message  $message
+	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
-	private function getMessagePayload(Swift_Mime_Message $message) {
+	private function getMessagePayload(Swift_Mime_SimpleMessage $message) {
 		$payload = [];
 
 		$this->processRecipients($payload, $message);
@@ -130,7 +140,7 @@ class Transport implements Swift_Transport {
 	 * Applies the recipients of the message into the API Payload.
 	 *
 	 * @param  array               $payload
-	 * @param  Swift_Mime_Message  $message
+	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
 	private function processRecipients(&$payload, $message) {
@@ -154,7 +164,7 @@ class Transport implements Swift_Transport {
 	 * into the API Payload.
 	 *
 	 * @param  array               $payload
-	 * @param  Swift_Mime_Message  $message
+	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
 	private function processMessageParts(&$payload, $message) {
@@ -199,7 +209,7 @@ class Transport implements Swift_Transport {
 	 * Applies the headers into the API Payload.
 	 *
 	 * @param  array               $payload
-	 * @param  Swift_Mime_Message  $message
+	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
 	private function processHeaders(&$payload, $message) {

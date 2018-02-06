@@ -1,6 +1,12 @@
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 
@@ -17,8 +23,8 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
 		$message->addPart('Doo-wah-ditty.', 'text/plain');
 
-		$attachment = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		$attachment2 = Swift_Attachment::newInstance('This is the plain text attachment.', 'hello.txt', 'text/plain');
+		$attachment = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
+		$attachment2 = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
 		$attachment2->setDisposition('inline');
 
 		$message->attach($attachment);
@@ -27,70 +33,89 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 
 		$headers = $message->getHeaders();
 		$headers->addTextHeader('X-PM-Tag', 'movie-quotes');
-		$messageId = $headers->get('Message-ID')->getId();
 
-		$transport = new PostmarkTransportStub('TESTING_SERVER');
+		$transport = new PostmarkTransportStub([new Response(200)]);
 
-		$client = $this->getMock('GuzzleHttp\Client', array('request'));
-		$transport->setHttpClient($client);
+		$recipientCount = $transport->send($message);
 
-		$o = PHP_OS;
-		$v = phpversion();
-
-		$client->expects($this->once())
-		       ->method('request')
-		       ->with($this->equalTo('POST'), 
-		       	    $this->equalTo('https://api.postmarkapp.com/email'),
-			        $this->equalTo([
-				        'headers' => [
-					        'X-Postmark-Server-Token' => 'TESTING_SERVER',
-					        'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
-					        'Content-Type' => 'application/json'
-				        ],
-				        'json' => [
-					        'From' => '"Johnny #5" <johnny5@example.com>',
-					        'To' => '"A. Friend" <you@example.com>,you+two@example.com',
-					        'Cc' => 'another+1@example.com,"Extra 2" <another+2@example.com>',
-					        'Bcc' => 'another+3@example.com,"Extra 4" <another+4@example.com>',
-					        'Subject' => 'Is alive!',
-					        'Tag' => 'movie-quotes',
-					        'TextBody' => 'Doo-wah-ditty.',
-					        'HtmlBody' => '<q>Help me Rhonda</q>',
-					        'Headers' => [
-						        ['Name' => 'Message-ID', 'Value' => '<' . $messageId . '>'],
-						        ['Name' => 'X-PM-KeepID', 'Value' => 'true'],
-						        ['Name' => 'X-Priority', 'Value' => '1 (Highest)'],
-					        ],
-					        'Attachments' => [
-						        [
-							        'ContentType' => 'text/plain',
-							        'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
-							        'Name' => 'hello.txt'
-						        ],
-						        [
-							        'ContentType' => 'text/plain',
-							        'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
-							        'Name' => 'hello.txt',
-							        'ContentID' => 'cid:'.$attachment2->getId()
-						        ],
-					        ],
-				        ],
-                        'http_errors' => false,
-			        ])
-		       );
-
-		$transport->send($message);
+		$this->assertEquals(6, $recipientCount);
+		$transaction = $transport->getHistory()[0];
+		$this->assertExpectedMessageRequest($message, $transaction['request']);
 	}
+
+    protected function assertExpectedMessageRequest($message, $request)
+    {
+        $attachments = $this->getAttachments($message);
+
+        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals('TESTING_SERVER', $request->getHeaderLine('X-Postmark-Server-Token'));
+        $this->assertEquals('swiftmailer-postmark (PHP Version: '.phpversion().', OS: '.PHP_OS.')', $request->getHeaderLine('User-Agent'));
+        $this->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+        $this->assertEquals([
+            'From' => '"Johnny #5" <johnny5@example.com>',
+            'To' => '"A. Friend" <you@example.com>,you+two@example.com',
+            'Cc' => 'another+1@example.com,"Extra 2" <another+2@example.com>',
+            'Bcc' => 'another+3@example.com,"Extra 4" <another+4@example.com>',
+            'Subject' => 'Is alive!',
+            'Tag' => 'movie-quotes',
+            'TextBody' => 'Doo-wah-ditty.',
+            'HtmlBody' => '<q>Help me Rhonda</q>',
+            'Headers' => [
+                ['Name' => 'Message-ID', 'Value' => '<' . $message->getHeaders()->get('Message-ID')->getId() . '>'],
+                ['Name' => 'X-PM-KeepID', 'Value' => 'true'],
+                ['Name' => 'X-Priority', 'Value' => '1 (Highest)'],
+            ],
+            'Attachments' => [
+                [
+                    'ContentType' => 'text/plain',
+                    'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
+                    'Name' => 'hello.txt',
+                ],
+                [
+                    'ContentType' => 'text/plain',
+                    'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
+                    'Name' => 'hello.txt',
+                    'ContentID' => 'cid:'.$attachments[1]->getId()
+                ],
+            ]
+        ], json_decode($request->getBody()->getContents(), true));
+	}
+
+    protected function getAttachments($message)
+    {
+        return array_values(array_filter($message->getChildren(), function ($child) {
+            return $child instanceof Swift_Attachment;
+        }));
+    }
 }
 
 class PostmarkTransportStub extends Postmark\Transport {
 	protected $client;
 
-	protected function getHttpClient() {
-		return $this->client;
-	}
+	public function __construct(array $responses = [])
+    {
+        parent::__construct('TESTING_SERVER');
 
-	public function setHttpClient($client) {
-		$this->client = $client;
-	}
+        $this->client = $this->mockGuzzle($responses);
+    }
+
+    protected function getHttpClient()
+    {
+        return $this->client;
+    }
+
+    public function getHistory()
+    {
+        return $this->client->transactionHistory;
+    }
+
+    private function mockGuzzle(array $responses)
+    {
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $client = new Client(['handler' => $stack]);
+        $client->transactionHistory = [];
+        $stack->push(Middleware::history($client->transactionHistory));
+
+        return $client;
+    }
 }

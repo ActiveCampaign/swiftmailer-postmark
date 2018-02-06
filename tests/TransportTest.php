@@ -5,10 +5,11 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
+class MailPostmarkTransportTest extends TestCase {
 
 	public function testSend() {
 		$message = new Swift_Message();

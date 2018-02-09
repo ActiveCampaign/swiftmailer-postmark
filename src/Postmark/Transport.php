@@ -93,7 +93,11 @@ class Transport implements Swift_Transport {
 	 * @return int
 	 */
 	private function getRecipientCount(Swift_Mime_SimpleMessage $message) {
-		return count(array_merge($message->getTo(), $message->getCc(), $message->getBcc()));
+	    return count(array_merge(
+            (array) $message->getTo(),
+            (array) $message->getCc(),
+            (array) $message->getBcc())
+        );
 	}
 
 	/**

@@ -82,6 +82,20 @@ class MailPostmarkTransportTest extends TestCase {
         ], json_decode($request->getBody()->getContents(), true));
 	}
 
+	public function testCanSendEmailsWithCCs()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->addTo('you@example.com', 'A. Friend');
+        $message->addCc('another+1@example.com');
+
+        $transport = new PostmarkTransportStub([new Response(200)]);
+
+        $recipientCount = $transport->send($message);
+
+        $this->assertEquals(2, $recipientCount);
+    }
+
     protected function getAttachments($message)
     {
         return array_values(array_filter($message->getChildren(), function ($child) {

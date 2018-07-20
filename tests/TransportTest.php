@@ -102,7 +102,30 @@ class MailPostmarkTransportTest extends TestCase {
             return $child instanceof Swift_Attachment;
         }));
     }
+
+    public function testEvents()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Some Subject');
+        $message->addTo('you@example.com', 'A. Friend');
+        $transport = new PostmarkTransportStub([new Response(200)]);
+     
+        $redirectAddress = 'test@test.com';
+
+        $transport->registerPlugin(new Swift_Plugins_RedirectingPlugin('test@test.com'));
+        
+        $o = PHP_OS;
+        $v = phpversion();
+
+        $transport->send($message);
+
+        $request = $transport->getHistory()[0]['request'];
+        $body = json_decode($request->getBody()->getContents(), true);
+        $this->assertEquals($redirectAddress, $body['To']);
+    }
 }
+
 
 class PostmarkTransportStub extends Postmark\Transport {
 	protected $client;

@@ -94,12 +94,14 @@ class Transport implements Swift_Transport {
 			'http_errors' => false,
 		]);
 
-		if ($evt) {
+		$sendSuccessful = $response->getStatusCode() == 200;
+
+		if ($evt && $sendSuccessful) {
 			$evt->setResult(\Swift_Events_SendEvent::RESULT_SUCCESS);
 			$this->_eventDispatcher->dispatchEvent($evt, 'sendPerformed');
 		}
 		
-		return $response->getStatusCode() == 200
+		return $sendSuccessful
 			? $this->getRecipientCount($message)
 			: 0;
 	}

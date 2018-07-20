@@ -28,7 +28,6 @@
       "test" : "phpunit"  
     },
     "suggest": {
-        "wildbit/laravel-postmark-provider": "~1.0"
     },
     "authors": [{
         "name": "Postmark",

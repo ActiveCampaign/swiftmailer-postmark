@@ -81,6 +81,50 @@ class MailPostmarkTransportTest extends PHPUnit_Framework_TestCase {
 
 		$transport->send($message);
 	}
+
+	public function testEvents()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Some Subject');
+        $message->addTo('you@example.com', 'A. Friend');
+        $transport = new PostmarkTransportStub('TESTING_SERVER');
+
+        $transport->registerPlugin(new Swift_Plugins_RedirectingPlugin('test@test.com'));
+
+        $client = $this->getMock('GuzzleHttp\Client', array('request'));
+        $transport->setHttpClient($client);
+
+        $o = PHP_OS;
+        $v = phpversion();
+
+        $client->expects($this->once())
+            ->method('request')
+            ->with($this->equalTo('POST'),
+                $this->equalTo('https://api.postmarkapp.com/email'),
+                $this->equalTo([
+                    'headers' => [
+                        'X-Postmark-Server-Token' => 'TESTING_SERVER',
+                        'User-Agent' => "swiftmailer-postmark (PHP Version: $v, OS: $o)",
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => [
+                        'From' => '"Johnny #5" <johnny5@example.com>',
+                        'To' => 'test@test.com',
+                        'Subject' => 'Some Subject',
+                        'TextBody' => null,
+                        'Headers' => [
+                            ['Name' => 'Content-Transfer-Encoding', 'Value' => 'quoted-printable'],
+                            ['Name' => 'Message-ID', 'Value' => '<' . $message->getId() . '>'],
+                            ['Name' => 'X-PM-KeepID', 'Value' => 'true'],
+                        ],
+                    ],
+                    'http_errors' => false,
+                ])
+            );
+
+        $transport->send($message);
+    }
 }
 
 class PostmarkTransportStub extends Postmark\Transport {

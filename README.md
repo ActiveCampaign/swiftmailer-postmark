@@ -12,11 +12,31 @@ You're just steps away from super simple sending via Postmark:
 ```bash
 composer require wildbit/swiftmailer-postmark
 ```
-##### 2. Construct the Postmark Transport and pass it to your `Swift_Mailer` instance:
+##### 2. Use the transport to send a message:
 
 ```php
-$transport = new \Postmark\Transport("<YOUR_SERVER_TOKEN>");
-$mailer = new Swift_Mailer($transport);
-```
+<?
+//import the transport from the standard composer directory:
+require_once('./vendor/autoload.php');
 
-##### 3. There is no step three.
+$transport = new \Postmark\Transport('<SERVER_TOKRN>');
+$mailer = new Swift_Mailer($transport);
+
+//Instantiate the message you want to send.
+$message = (new Swift_Message('Hello from Postmark!'))
+  ->setFrom(['john@example.com' => 'John Doe'])
+  ->setTo(['jane@example.com'])
+  ->setBody('<b>A really important message from our sponsors.</b>', 'text/html')
+  ->addPart('Another important message from our sponsors.','text/plain');
+
+//Add some attachment data:
+$attachmentData = 'Some attachment data.';
+$attachment = new Swift_Attachment($attachmentData, 'my-file.txt', 'application/octet-stream');
+
+$message->attach($attachment);
+
+//Send the message!
+$mailer->send($message);
+
+?>
+```

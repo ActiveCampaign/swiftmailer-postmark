@@ -21,6 +21,11 @@ class Transport implements Swift_Transport {
 	protected $serverToken;
 
 	/**
+	 * @var \Swift_Events_EventDispatcher
+	 */
+	protected $_eventDispatcher;
+
+	/**
 	 * Create a new Postmark transport instance.
 	 *
 	 * @param  string  $serverToken The API token for the server from which you will send mail.
@@ -30,6 +35,7 @@ class Transport implements Swift_Transport {
 		$this->serverToken = $serverToken;
 		$this->version = phpversion();
 		$this->os = PHP_OS;
+		$this->_eventDispatcher = \Swift_DependencyContainer::getInstance()->lookup('transport.eventdispatcher');
 	}
 
 	/**
@@ -68,6 +74,13 @@ class Transport implements Swift_Transport {
 	public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null) {
 		$client = $this->getHttpClient();
 
+		if ($evt = $this->_eventDispatcher->createSendEvent($this, $message)) {
+			$this->_eventDispatcher->dispatchEvent($evt, 'beforeSendPerformed');
+			if ($evt->bubbleCancelled()) {
+				return 0;
+			}
+		}
+
 		$v = $this->version;
 		$o = $this->os;
 
@@ -81,6 +94,11 @@ class Transport implements Swift_Transport {
 			'http_errors' => false,
 		]);
 
+		if ($evt) {
+			$evt->setResult(\Swift_Events_SendEvent::RESULT_SUCCESS);
+			$this->_eventDispatcher->dispatchEvent($evt, 'sendPerformed');
+		}
+		
 		return $response->getStatusCode() == 200
 			? $this->getRecipientCount($message)
 			: 0;
@@ -275,7 +293,7 @@ class Transport implements Swift_Transport {
 	 * {@inheritdoc}
 	 */
 	public function registerPlugin(Swift_Events_EventListener $plugin) {
-		//
+		$this->_eventDispatcher->bindEventListener($plugin);
 	}
 
 	/**

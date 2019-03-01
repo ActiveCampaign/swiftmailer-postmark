@@ -19,7 +19,7 @@ composer require wildbit/swiftmailer-postmark
 //import the transport from the standard composer directory:
 require_once('./vendor/autoload.php');
 
-$transport = new \Postmark\Transport('<SERVER_TOKRN>');
+$transport = new \Postmark\Transport('<SERVER_TOKEN>');
 $mailer = new Swift_Mailer($transport);
 
 //Instantiate the message you want to send.

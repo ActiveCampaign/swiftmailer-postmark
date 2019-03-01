@@ -124,6 +124,12 @@ class MailPostmarkTransportTest extends TestCase {
         $body = json_decode($request->getBody()->getContents(), true);
         $this->assertEquals($redirectAddress, $body['To']);
     }
+
+    public function testServerTokenReturnedFromPublicMethod()
+    {
+        $transport = new PostmarkTransportStub([new Response(200)]);
+        $this->assertEquals($transport->getServerToken(), 'TESTING_SERVER');
+    }
 }
 
 

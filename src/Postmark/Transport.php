@@ -183,7 +183,9 @@ class Transport implements Swift_Transport {
 	 */
 	private function processRecipients(&$payload, $message) {
 		$payload['From'] = join(',', $this->convertEmailsArray($message->getFrom()));
-		$payload['To'] = join(',', $this->convertEmailsArray($message->getTo()));
+		if ($to = $message->getTo()) {
+            $payload['To'] = join(',', $this->convertEmailsArray($to));
+        }
 		$payload['Subject'] = $message->getSubject();
 
 		if ($cc = $message->getCc()) {

@@ -125,6 +125,25 @@ class MailPostmarkTransportTest extends TestCase {
         $this->assertEquals($redirectAddress, $body['To']);
     }
 
+    public function testToAndCcCanBeNullableEvents()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Some Subject');
+        $message->addBcc('you@example.com', 'A. Friend');
+        $message->addBcc('other@example.com', 'B. Friend');
+        $transport = new PostmarkTransportStub([new Response(200)]);
+
+        $o = PHP_OS;
+        $v = phpversion();
+
+        $transport->send($message);
+
+        $request = $transport->getHistory()[0]['request'];
+        $body = json_decode($request->getBody()->getContents(), true);
+        $this->assertEquals('"A. Friend" <you@example.com>,"B. Friend" <other@example.com>', $body['Bcc']);
+    }
+
     public function testServerTokenReturnedFromPublicMethod()
     {
         $transport = new PostmarkTransportStub([new Response(200)]);

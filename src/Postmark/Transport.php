@@ -276,11 +276,7 @@ class Transport implements Swift_Transport {
                             "Value" => $value->getValue(),
                         ]);
 					}else{
-					    if(substr($fieldName, 0, strlen('X-PM-Metadata-')) == 'X-PM-Metadata-'){
-                            $payload["Metadata"] = $value->getValue();
-                        }else{
-                            $payload["Tag"] = $value->getValue();
-                        }
+                        $payload["Tag"] = $value->getValue();
 					}
 				} else if ($value instanceof \Swift_Mime_Headers_DateHeader ||
 					$value instanceof \Swift_Mime_Headers_IdentificationHeader ||

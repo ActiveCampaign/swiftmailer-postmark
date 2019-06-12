@@ -146,8 +146,19 @@ class MailPostmarkTransportTest extends TestCase {
 
     public function testServerTokenReturnedFromPublicMethod()
     {
-        $transport = new PostmarkTransportStub([new Response(200)]);
+        $transport = new PostmarkTransportStub();
         $this->assertEquals($transport->getServerToken(), 'TESTING_SERVER');
+    }
+
+    public function testFailedResponse()
+    {
+        $message = new Swift_Message();
+
+        $transport = new PostmarkTransportStub([new Response(401)]);
+        $transport->registerPlugin(new \Postmark\ThrowExceptionOnFailurePlugin());
+
+        $this->expectException(\Swift_TransportException::class);
+        $transport->send($message);
     }
 }
 

@@ -40,3 +40,15 @@ $mailer->send($message);
 
 ?>
 ```
+
+##### 3. Throw exceptions on Postmark api errors
+
+```php
+$transport = new \Postmark\Transport('<SERVER_TOKEN>');
+$transport->registerPlugin(new \Postmark\ThrowExceptionOnFailurePlugin());
+
+$message = new Swift_Message('Hello from Postmark!');
+$mailer->send($message); // Exception is throw when response !== 200
+
+?>
+```

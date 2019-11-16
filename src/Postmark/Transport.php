@@ -166,6 +166,7 @@ class Transport implements Swift_Transport {
 	 */
 	private function getMessagePayload(Swift_Mime_SimpleMessage $message) {
 		$payload = [];
+		$payload["Metadata"] = [];
 
 		$this->processRecipients($payload, $message);
 
@@ -268,14 +269,19 @@ class Transport implements Swift_Transport {
 
 				if ($value instanceof \Swift_Mime_Headers_UnstructuredHeader ||
 					$value instanceof \Swift_Mime_Headers_OpenDKIMHeader) {
-					if($fieldName != 'X-PM-Tag'){
-						array_push($headers, [
-							"Name" => $fieldName,
-							"Value" => $value->getValue(),
-						]);
-					}else{
-						$payload["Tag"] = $value->getValue();
-					}
+						if ($fieldName != 'X-PM-Tag') {
+							$metadataField = 'X-PM-Metadata-';
+							if (substr($fieldName, 0, strlen($metadataField)) == $metadataField) {
+								$payload["Metadata"][explode($metadataField, $fieldName)[1]] = $value->getValue();
+							}
+	
+							array_push($headers, [
+								"Name" => $fieldName,
+								"Value" => $value->getValue(),
+							]);
+						} else {
+							$payload["Tag"] = $value->getValue();
+						}
 				} else if ($value instanceof \Swift_Mime_Headers_DateHeader ||
 					$value instanceof \Swift_Mime_Headers_IdentificationHeader ||
 					$value instanceof \Swift_Mime_Headers_ParameterizedHeader ||

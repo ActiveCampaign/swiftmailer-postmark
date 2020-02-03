@@ -34,6 +34,8 @@ class MailPostmarkTransportTest extends TestCase {
 
 		$headers = $message->getHeaders();
 		$headers->addTextHeader('X-PM-Tag', 'movie-quotes');
+		$headers->addTextHeader('X-PM-TrackOpens', false);
+		$headers->addTextHeader('X-PM-TrackLinks', 'None');
 
 		$transport = new PostmarkTransportStub([new Response(200)]);
 
@@ -61,6 +63,8 @@ class MailPostmarkTransportTest extends TestCase {
             'Tag' => 'movie-quotes',
             'TextBody' => 'Doo-wah-ditty.',
             'HtmlBody' => '<q>Help me Rhonda</q>',
+            'TrackOpens' => $message->getHeaders()->get('X-PM-TrackOpens')->getValue(),
+            'TrackLinks' => $message->getHeaders()->get('X-PM-TrackLinks')->getValue(),
             'Headers' => [
                 ['Name' => 'Message-ID', 'Value' => '<' . $message->getHeaders()->get('Message-ID')->getId() . '>'],
                 ['Name' => 'X-PM-KeepID', 'Value' => 'true'],

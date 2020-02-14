@@ -1,36 +1,26 @@
 {
-    "repositories": [{
-        "type": "composer",
-        "url": "https://packagist.org"
-    }],
     "name": "wildbit/swiftmailer-postmark",
     "description": "A Swiftmailer Transport for Postmark.",
-    "require": {
-        "swiftmailer/swiftmailer": "^6.0.0",
-        "guzzlehttp/guzzle": "^6.0.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^6.0.0"
-    },
     "license": "MIT",
-    "autoload": {
-        "psr-0": {
-            "Postmark\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "classmap": [
-            "src/",
-            "tests/"
-        ]
-    },
-    "scripts" : {
-      "test" : "phpunit"  
-    },
-    "suggest": {
-    },
-    "authors": [{
+    "authors": [
+        {
         "name": "Postmark",
         "email": "support@postmarkapp.com"
-    }]
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.0",
+        "guzzlehttp/guzzle": "^6.0|^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5|^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Postmark\\": "src/Postmark"
+        }
+    },
+    "scripts": {
+      "test": "phpunit"  
+    }
 }

@@ -10,16 +10,17 @@ You're just steps away from super simple sending via Postmark:
 ##### 1. Include this package in your project:
 
 ```bash
-composer require wildbit/swiftmailer-postmark
+$ composer require wildbit/swiftmailer-postmark
 ```
 ##### 2. Use the transport to send a message:
 
 ```php
-<?
+<?php
+
 //import the transport from the standard composer directory:
 require_once('./vendor/autoload.php');
 
-$transport = new \Postmark\Transport('<SERVER_TOKEN>');
+$transport = new Postmark\Transport('<SERVER_TOKEN>');
 $mailer = new Swift_Mailer($transport);
 
 //Instantiate the message you want to send.
@@ -37,18 +38,16 @@ $message->attach($attachment);
 
 //Send the message!
 $mailer->send($message);
-
-?>
 ```
 
 ##### 3. Throw exceptions on Postmark api errors
 
 ```php
-$transport = new \Postmark\Transport('<SERVER_TOKEN>');
-$transport->registerPlugin(new \Postmark\ThrowExceptionOnFailurePlugin());
+<?php
+
+$transport = new Postmark\Transport('<SERVER_TOKEN>');
+$transport->registerPlugin(new Postmark\ThrowExceptionOnFailurePlugin());
 
 $message = new Swift_Message('Hello from Postmark!');
 $mailer->send($message); // Exception is throw when response !== 200
-
-?>
 ```

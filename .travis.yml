@@ -1,13 +1,14 @@
-sudo: false
 language: php
 
-php:
-  - "7.0"
-  - "7.1"
-  - "7.2"
+dist: xenial
 
-before_script:
-  - composer self-update
-  - composer install --no-interaction --prefer-source --dev
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+
+before_script: composer install
 
 script: composer test

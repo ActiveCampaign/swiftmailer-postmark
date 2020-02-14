@@ -6,12 +6,13 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Postmark\ThrowExceptionOnFailurePlugin;
+use Postmark\Transport;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-class MailPostmarkTransportTest extends TestCase {
-
-	public function testSend() {
+class MailPostmarkTransportTest extends TestCase
+{
+	public function testSend()
+    {
 		$message = new Swift_Message();
 		$message->setFrom('johnny5@example.com', 'Johnny #5');
 		$message->setSubject('Is alive!');
@@ -155,7 +156,7 @@ class MailPostmarkTransportTest extends TestCase {
         $message = new Swift_Message();
 
         $transport = new PostmarkTransportStub([new Response(401)]);
-        $transport->registerPlugin(new \Postmark\ThrowExceptionOnFailurePlugin());
+        $transport->registerPlugin(new ThrowExceptionOnFailurePlugin());
 
         $this->expectException(\Swift_TransportException::class);
         $transport->send($message);
@@ -163,7 +164,8 @@ class MailPostmarkTransportTest extends TestCase {
 }
 
 
-class PostmarkTransportStub extends Postmark\Transport {
+class PostmarkTransportStub extends Transport
+{
 	protected $client;
 
 	public function __construct(array $responses = [])

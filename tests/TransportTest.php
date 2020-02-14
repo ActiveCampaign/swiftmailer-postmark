@@ -63,7 +63,7 @@ class MailPostmarkTransportTest extends TestCase
             'TextBody' => 'Doo-wah-ditty.',
             'HtmlBody' => '<q>Help me Rhonda</q>',
             'Headers' => [
-                ['Name' => 'Message-ID', 'Value' => '<' . $message->getHeaders()->get('Message-ID')->getId() . '>'],
+                ['Name' => 'Message-ID', 'Value' => '<'.$message->getHeaders()->get('Message-ID')->getId().'>'],
                 ['Name' => 'X-PM-KeepID', 'Value' => 'true'],
                 ['Name' => 'X-Priority', 'Value' => '1 (Highest)'],
             ],
@@ -77,9 +77,9 @@ class MailPostmarkTransportTest extends TestCase
                     'ContentType' => 'text/plain',
                     'Content' => 'VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBhdHRhY2htZW50Lg==',
                     'Name' => 'hello.txt',
-                    'ContentID' => 'cid:'.$attachments[1]->getId()
+                    'ContentID' => 'cid:'.$attachments[1]->getId(),
                 ],
-            ]
+            ],
         ], json_decode($request->getBody()->getContents(), true));
     }
 
@@ -111,11 +111,11 @@ class MailPostmarkTransportTest extends TestCase
         $message->setSubject('Some Subject');
         $message->addTo('you@example.com', 'A. Friend');
         $transport = new PostmarkTransportStub([new Response(200)]);
-     
+
         $redirectAddress = 'test@test.com';
 
         $transport->registerPlugin(new Swift_Plugins_RedirectingPlugin('test@test.com'));
-        
+
         $o = PHP_OS;
         $v = phpversion();
 
@@ -162,7 +162,6 @@ class MailPostmarkTransportTest extends TestCase
         $transport->send($message);
     }
 }
-
 
 class PostmarkTransportStub extends Transport
 {

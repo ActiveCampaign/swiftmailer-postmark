@@ -1,11 +1,11 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Postmark\Transport;
 use Postmark\ThrowExceptionOnFailurePlugin;
+use Postmark\Transport;
 
-class ThrowExceptionOnFailurePluginTest extends TestCase {
-
+class ThrowExceptionOnFailurePluginTest extends TestCase
+{
     /**
      * @doesNotPerformAssertions
      */

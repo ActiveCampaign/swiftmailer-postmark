@@ -8,10 +8,10 @@ use Swift_Mime_MimePart;
 use Swift_Mime_SimpleMessage;
 use Swift_Transport;
 
-class Transport implements Swift_Transport {
-
-    protected $version = "Unknown PHP version";
-    protected $os = "Unknown OS";
+class Transport implements Swift_Transport
+{
+    protected $version = 'Unknown PHP version';
+    protected $os = 'Unknown OS';
 
     /**
      * The Postmark Server Token key.
@@ -31,7 +31,8 @@ class Transport implements Swift_Transport {
      * @param  string  $serverToken The API token for the server from which you will send mail.
      * @return void
      */
-    public function __construct($serverToken) {
+    public function __construct($serverToken)
+    {
         $this->serverToken = $serverToken;
         $this->version = phpversion();
         $this->os = PHP_OS;
@@ -41,37 +42,42 @@ class Transport implements Swift_Transport {
     /**
      * {@inheritdoc}
      */
-    public function isStarted() {
+    public function isStarted()
+    {
         return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function start() {
+    public function start()
+    {
         return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stop() {
+    public function stop()
+    {
         return true;
     }
 
     /**
-     * Not used
+     * Not used.
      *
      * @return bool
      */
-    public function ping() {
+    public function ping()
+    {
         return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null) {
+    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
+    {
         $client = $this->getHttpClient();
 
         if ($sendEvent = $this->_eventDispatcher->createSendEvent($this, $message)) {
@@ -84,7 +90,7 @@ class Transport implements Swift_Transport {
         $v = $this->version;
         $o = $this->os;
 
-        $response = $client->request('POST','https://api.postmarkapp.com/email', [
+        $response = $client->request('POST', 'https://api.postmarkapp.com/email', [
             'headers' => [
                 'X-Postmark-Server-Token' => $this->serverToken,
                 'Content-Type' => 'application/json',
@@ -104,19 +110,20 @@ class Transport implements Swift_Transport {
             $sendEvent->setResult($success ? \Swift_Events_SendEvent::RESULT_SUCCESS : \Swift_Events_SendEvent::RESULT_FAILED);
             $this->_eventDispatcher->dispatchEvent($sendEvent, 'sendPerformed');
         }
-        
+
         return $success
             ? $this->getRecipientCount($message)
             : 0;
     }
 
     /**
-     * Get the number of recipients for a message
+     * Get the number of recipients for a message.
      *
      * @param Swift_Mime_SimpleMessage $message
      * @return int
      */
-    private function getRecipientCount(Swift_Mime_SimpleMessage $message) {
+    private function getRecipientCount(Swift_Mime_SimpleMessage $message)
+    {
         return count(array_merge(
             (array) $message->getTo(),
             (array) $message->getCc(),
@@ -131,13 +138,15 @@ class Transport implements Swift_Transport {
      * @param  array  $emails
      * @return array
      */
-    private function convertEmailsArray(array $emails) {
-        $convertedEmails = array();
+    private function convertEmailsArray(array $emails)
+    {
+        $convertedEmails = [];
         foreach ($emails as $email => $name) {
             $convertedEmails[] = $name
-            ? '"' . str_replace('"', '\\"', $name) . "\" <{$email}>"
+            ? '"'.str_replace('"', '\\"', $name)."\" <{$email}>"
             : $email;
         }
+
         return $convertedEmails;
     }
 
@@ -150,7 +159,8 @@ class Transport implements Swift_Transport {
      * @param  string                    $mimeType
      * @return Swift_Mime_MimePart
      */
-    private function getMIMEPart(Swift_Mime_SimpleMessage $message, $mimeType) {
+    private function getMIMEPart(Swift_Mime_SimpleMessage $message, $mimeType)
+    {
         foreach ($message->getChildren() as $part) {
             if (strpos($part->getContentType(), $mimeType) === 0 && !($part instanceof \Swift_Mime_Attachment)) {
                 return $part;
@@ -164,7 +174,8 @@ class Transport implements Swift_Transport {
      * @param  Swift_Mime_SimpleMessage  $message
      * @return object
      */
-    private function getMessagePayload(Swift_Mime_SimpleMessage $message) {
+    private function getMessagePayload(Swift_Mime_SimpleMessage $message)
+    {
         $payload = [];
 
         $this->processRecipients($payload, $message);
@@ -185,21 +196,22 @@ class Transport implements Swift_Transport {
      * @param  Swift_Mime_SimpleMessage  $message
      * @return object
      */
-    private function processRecipients(&$payload, $message) {
-        $payload['From'] = join(',', $this->convertEmailsArray($message->getFrom()));
+    private function processRecipients(&$payload, $message)
+    {
+        $payload['From'] = implode(',', $this->convertEmailsArray($message->getFrom()));
         if ($to = $message->getTo()) {
-            $payload['To'] = join(',', $this->convertEmailsArray($to));
+            $payload['To'] = implode(',', $this->convertEmailsArray($to));
         }
         $payload['Subject'] = $message->getSubject();
 
         if ($cc = $message->getCc()) {
-            $payload['Cc'] = join(',', $this->convertEmailsArray($cc));
+            $payload['Cc'] = implode(',', $this->convertEmailsArray($cc));
         }
         if ($reply_to = $message->getReplyTo()) {
-            $payload['ReplyTo'] = join(',', $this->convertEmailsArray($reply_to));
+            $payload['ReplyTo'] = implode(',', $this->convertEmailsArray($reply_to));
         }
         if ($bcc = $message->getBcc()) {
-            $payload['Bcc'] = join(',', $this->convertEmailsArray($bcc));
+            $payload['Bcc'] = implode(',', $this->convertEmailsArray($bcc));
         }
     }
 
@@ -211,7 +223,8 @@ class Transport implements Swift_Transport {
      * @param  Swift_Mime_SimpleMessage  $message
      * @return object
      */
-    private function processMessageParts(&$payload, $message) {
+    private function processMessageParts(&$payload, $message)
+    {
         //Get the primary message.
         switch ($message->getContentType()) {
             case 'text/html':
@@ -232,15 +245,15 @@ class Transport implements Swift_Transport {
             $payload['HtmlBody'] = $html->getBody();
         }
         if ($message->getChildren()) {
-            $payload['Attachments'] = array();
+            $payload['Attachments'] = [];
             foreach ($message->getChildren() as $attachment) {
                 if (is_object($attachment) and $attachment instanceof \Swift_Mime_Attachment) {
-                    $a = array(
+                    $a = [
                         'Name' => $attachment->getFilename(),
                         'Content' => base64_encode($attachment->getBody()),
-                        'ContentType' => $attachment->getContentType()
-                    );
-                    if($attachment->getDisposition() != 'attachment' && $attachment->getId() != NULL) {
+                        'ContentType' => $attachment->getContentType(),
+                    ];
+                    if ($attachment->getDisposition() != 'attachment' && $attachment->getId() != null) {
                         $a['ContentID'] = 'cid:'.$attachment->getId();
                     }
                     $payload['Attachments'][] = $a;
@@ -256,7 +269,8 @@ class Transport implements Swift_Transport {
      * @param  Swift_Mime_SimpleMessage  $message
      * @return object
      */
-    private function processHeaders(&$payload, $message) {
+    private function processHeaders(&$payload, $message)
+    {
         $headers = [];
 
         foreach ($message->getHeaders()->getAll() as $key => $value) {
@@ -265,30 +279,29 @@ class Transport implements Swift_Transport {
             $excludedHeaders = ['Subject', 'Content-Type', 'MIME-Version', 'Date'];
 
             if (!in_array($fieldName, $excludedHeaders)) {
-
                 if ($value instanceof \Swift_Mime_Headers_UnstructuredHeader ||
                     $value instanceof \Swift_Mime_Headers_OpenDKIMHeader) {
-                    if($fieldName != 'X-PM-Tag'){
+                    if ($fieldName != 'X-PM-Tag') {
                         array_push($headers, [
-                            "Name" => $fieldName,
-                            "Value" => $value->getValue(),
+                            'Name' => $fieldName,
+                            'Value' => $value->getValue(),
                         ]);
-                    }else{
-                        $payload["Tag"] = $value->getValue();
+                    } else {
+                        $payload['Tag'] = $value->getValue();
                     }
-                } else if ($value instanceof \Swift_Mime_Headers_DateHeader ||
+                } elseif ($value instanceof \Swift_Mime_Headers_DateHeader ||
                     $value instanceof \Swift_Mime_Headers_IdentificationHeader ||
                     $value instanceof \Swift_Mime_Headers_ParameterizedHeader ||
                     $value instanceof \Swift_Mime_Headers_PathHeader) {
                     array_push($headers, [
-                        "Name" => $fieldName,
-                        "Value" => $value->getFieldBody(),
+                        'Name' => $fieldName,
+                        'Value' => $value->getFieldBody(),
                     ]);
 
                     if ($value->getFieldName() == 'Message-ID') {
                         array_push($headers, [
-                            "Name" => 'X-PM-KeepID',
-                            "Value" => 'true',
+                            'Name' => 'X-PM-KeepID',
+                            'Value' => 'true',
                         ]);
                     }
                 }
@@ -300,7 +313,8 @@ class Transport implements Swift_Transport {
     /**
      * {@inheritdoc}
      */
-    public function registerPlugin(Swift_Events_EventListener $plugin) {
+    public function registerPlugin(Swift_Events_EventListener $plugin)
+    {
         $this->_eventDispatcher->bindEventListener($plugin);
     }
 
@@ -309,7 +323,8 @@ class Transport implements Swift_Transport {
      *
      * @return \GuzzleHttp\Client
      */
-    protected function getHttpClient() {
+    protected function getHttpClient()
+    {
         return new Client;
     }
 
@@ -318,7 +333,8 @@ class Transport implements Swift_Transport {
      *
      * @return string
      */
-    public function getServerToken() {
+    public function getServerToken()
+    {
         return $this->serverToken;
     }
 
@@ -328,8 +344,8 @@ class Transport implements Swift_Transport {
      * @param  string  $serverToken
      * @return void
      */
-    public function setServerToken($serverToken) {
+    public function setServerToken($serverToken)
+    {
         return $this->serverToken = $serverToken;
     }
-
 }

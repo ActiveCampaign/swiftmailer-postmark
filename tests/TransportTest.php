@@ -11,39 +11,39 @@ use Postmark\Transport;
 
 class MailPostmarkTransportTest extends TestCase
 {
-	public function testSend()
+    public function testSend()
     {
-		$message = new Swift_Message();
-		$message->setFrom('johnny5@example.com', 'Johnny #5');
-		$message->setSubject('Is alive!');
-		$message->addTo('you@example.com', 'A. Friend');
-		$message->addTo('you+two@example.com');
-		$message->addCc('another+1@example.com');
-		$message->addCc('another+2@example.com', 'Extra 2');
-		$message->addBcc('another+3@example.com');
-		$message->addBcc('another+4@example.com', 'Extra 4');
-		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
-		$message->addPart('Doo-wah-ditty.', 'text/plain');
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Is alive!');
+        $message->addTo('you@example.com', 'A. Friend');
+        $message->addTo('you+two@example.com');
+        $message->addCc('another+1@example.com');
+        $message->addCc('another+2@example.com', 'Extra 2');
+        $message->addBcc('another+3@example.com');
+        $message->addBcc('another+4@example.com', 'Extra 4');
+        $message->addPart('<q>Help me Rhonda</q>', 'text/html');
+        $message->addPart('Doo-wah-ditty.', 'text/plain');
 
-		$attachment = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		$attachment2 = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		$attachment2->setDisposition('inline');
+        $attachment = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
+        $attachment2 = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
+        $attachment2->setDisposition('inline');
 
-		$message->attach($attachment);
-		$message->attach($attachment2);
-		$message->setPriority(1);
+        $message->attach($attachment);
+        $message->attach($attachment2);
+        $message->setPriority(1);
 
-		$headers = $message->getHeaders();
-		$headers->addTextHeader('X-PM-Tag', 'movie-quotes');
+        $headers = $message->getHeaders();
+        $headers->addTextHeader('X-PM-Tag', 'movie-quotes');
 
-		$transport = new PostmarkTransportStub([new Response(200)]);
+        $transport = new PostmarkTransportStub([new Response(200)]);
 
-		$recipientCount = $transport->send($message);
+        $recipientCount = $transport->send($message);
 
-		$this->assertEquals(6, $recipientCount);
-		$transaction = $transport->getHistory()[0];
-		$this->assertExpectedMessageRequest($message, $transaction['request']);
-	}
+        $this->assertEquals(6, $recipientCount);
+        $transaction = $transport->getHistory()[0];
+        $this->assertExpectedMessageRequest($message, $transaction['request']);
+    }
 
     protected function assertExpectedMessageRequest($message, $request)
     {
@@ -81,9 +81,9 @@ class MailPostmarkTransportTest extends TestCase
                 ],
             ]
         ], json_decode($request->getBody()->getContents(), true));
-	}
+    }
 
-	public function testCanSendEmailsWithCCs()
+    public function testCanSendEmailsWithCCs()
     {
         $message = new Swift_Message();
         $message->setFrom('johnny5@example.com', 'Johnny #5');
@@ -166,9 +166,9 @@ class MailPostmarkTransportTest extends TestCase
 
 class PostmarkTransportStub extends Transport
 {
-	protected $client;
+    protected $client;
 
-	public function __construct(array $responses = [])
+    public function __construct(array $responses = [])
     {
         parent::__construct('TESTING_SERVER');
 

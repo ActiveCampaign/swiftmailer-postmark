@@ -20,6 +20,13 @@ class Transport implements Swift_Transport {
 	 */
 	protected $serverToken;
 
+    /**
+     * The Postmark Message Stream Identifier
+     *
+     * @var string|null
+     */
+    protected $messageStream;
+
 	/**
 	 * @var \Swift_Events_EventDispatcher
 	 */
@@ -28,11 +35,13 @@ class Transport implements Swift_Transport {
 	/**
 	 * Create a new Postmark transport instance.
 	 *
-	 * @param  string  $serverToken The API token for the server from which you will send mail.
+	 * @param  string  $serverToken    The API token for the server from which you will send mail.
+     * @param  string  $messageStream The name of the broadcast stream or the default if not provided
 	 * @return void
 	 */
-	public function __construct($serverToken) {
+	public function __construct($serverToken, $messageStream = null) {
 		$this->serverToken = $serverToken;
+        $this->messageStream = $messageStream;
 		$this->version = phpversion();
 		$this->os = PHP_OS;
 		$this->_eventDispatcher = \Swift_DependencyContainer::getInstance()->lookup('transport.eventdispatcher');
@@ -175,6 +184,8 @@ class Transport implements Swift_Transport {
 			$this->processHeaders($payload, $message);
 		}
 
+        $this->processMessageStream($payload, $message);
+
 		return $payload;
 	}
 
@@ -296,6 +307,22 @@ class Transport implements Swift_Transport {
 		}
 		$payload['Headers'] = $headers;
 	}
+
+    /**
+     * Applies the message stream into the API payload.
+     *
+     * @param  array                     $payload
+     * @param  Swift_Mime_SimpleMessage  $message
+     * @return void
+     */
+    private function processMessageStream(&$payload, $message)
+    {
+        if ($message->getHeaders() && $message->getHeaders()->has('X-PM-Message-Stream')) {
+            $payload['MessageStream'] = $message->getHeaders()->get('X-PM-Message-Stream', 0)->getFieldBody();
+        } else if ($this->messageStream !== NULL) {
+            $payload['MessageStream'] = $this->messageStream;
+        }
+    }
 
 	/**
 	 * {@inheritdoc}

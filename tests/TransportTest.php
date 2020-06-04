@@ -144,6 +144,43 @@ class MailPostmarkTransportTest extends TestCase {
         $this->assertEquals('"A. Friend" <you@example.com>,"B. Friend" <other@example.com>', $body['Bcc']);
     }
 
+    public function testMessageStreamViaConstructorOption()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Some Subject');
+        $message->addBcc('you@example.com', 'A. Friend');
+        $message->addBcc('other@example.com', 'B. Friend');
+
+        $transport = new PostmarkTransportStub([new Response(200)], 'broadcasts');
+        $transport->send($message);
+
+        $request = $transport->getHistory()[0]['request'];
+        $body = json_decode($request->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('MessageStream', $body);
+        $this->assertEquals('broadcasts', $body['MessageStream']);
+    }
+
+    public function testMessageStreamViaHeader()
+    {
+        $message = new Swift_Message();
+        $message->setFrom('johnny5@example.com', 'Johnny #5');
+        $message->setSubject('Some Subject');
+        $message->addBcc('you@example.com', 'A. Friend');
+        $message->addBcc('other@example.com', 'B. Friend');
+        $message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'broadcasts');
+
+        $transport = new PostmarkTransportStub([new Response(200)]);
+        $transport->send($message);
+
+        $request = $transport->getHistory()[0]['request'];
+        $body = json_decode($request->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('MessageStream', $body);
+        $this->assertEquals('broadcasts', $body['MessageStream']);
+    }
+
     public function testServerTokenReturnedFromPublicMethod()
     {
         $transport = new PostmarkTransportStub();
@@ -166,9 +203,9 @@ class MailPostmarkTransportTest extends TestCase {
 class PostmarkTransportStub extends Postmark\Transport {
 	protected $client;
 
-	public function __construct(array $responses = [])
+	public function __construct(array $responses = [], $messageStream = null)
     {
-        parent::__construct('TESTING_SERVER');
+        parent::__construct('TESTING_SERVER', $messageStream);
 
         $this->client = $this->mockGuzzle($responses);
     }

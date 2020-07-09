@@ -116,7 +116,7 @@ class Transport implements Swift_Transport {
 	 * @param Swift_Mime_SimpleMessage $message
 	 * @return int
 	 */
-	private function getRecipientCount(Swift_Mime_SimpleMessage $message) {
+	protected function getRecipientCount(Swift_Mime_SimpleMessage $message) {
 	    return count(array_merge(
             (array) $message->getTo(),
             (array) $message->getCc(),
@@ -131,7 +131,7 @@ class Transport implements Swift_Transport {
 	 * @param  array  $emails
 	 * @return array
 	 */
-	private function convertEmailsArray(array $emails) {
+	protected function convertEmailsArray(array $emails) {
 		$convertedEmails = array();
 		foreach ($emails as $email => $name) {
 			$convertedEmails[] = $name
@@ -150,7 +150,7 @@ class Transport implements Swift_Transport {
 	 * @param  string                    $mimeType
 	 * @return Swift_Mime_MimePart
 	 */
-	private function getMIMEPart(Swift_Mime_SimpleMessage $message, $mimeType) {
+	protected function getMIMEPart(Swift_Mime_SimpleMessage $message, $mimeType) {
 		foreach ($message->getChildren() as $part) {
 			if (strpos($part->getContentType(), $mimeType) === 0 && !($part instanceof \Swift_Mime_Attachment)) {
 				return $part;
@@ -164,7 +164,7 @@ class Transport implements Swift_Transport {
 	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
-	private function getMessagePayload(Swift_Mime_SimpleMessage $message) {
+	protected function getMessagePayload(Swift_Mime_SimpleMessage $message) {
 		$payload = [];
 
 		$this->processRecipients($payload, $message);
@@ -185,7 +185,7 @@ class Transport implements Swift_Transport {
 	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
-	private function processRecipients(&$payload, $message) {
+	protected function processRecipients(&$payload, $message) {
 		$payload['From'] = join(',', $this->convertEmailsArray($message->getFrom()));
 		if ($to = $message->getTo()) {
             $payload['To'] = join(',', $this->convertEmailsArray($to));
@@ -211,7 +211,7 @@ class Transport implements Swift_Transport {
 	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
-	private function processMessageParts(&$payload, $message) {
+	protected function processMessageParts(&$payload, $message) {
 		//Get the primary message.
 		switch ($message->getContentType()) {
 			case 'text/html':
@@ -256,7 +256,7 @@ class Transport implements Swift_Transport {
 	 * @param  Swift_Mime_SimpleMessage  $message
 	 * @return object
 	 */
-	private function processHeaders(&$payload, $message) {
+	protected function processHeaders(&$payload, $message) {
 		$headers = [];
 
 		foreach ($message->getHeaders()->getAll() as $key => $value) {

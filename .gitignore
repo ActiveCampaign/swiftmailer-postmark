@@ -1,3 +1,4 @@
 vendor
 build
 .phpintel
+/composer.lock

@@ -95,8 +95,8 @@ class Transport implements Swift_Transport {
 		]);
 
 		$success = $response->getStatusCode() === 200;
-
-		if ($responseEvent = $this->_eventDispatcher->createResponseEvent($this, $response->getBody()->getContents(), $success)) {
+		
+		if ($responseEvent = $this->_eventDispatcher->createResponseEvent($this, (string) $response->getBody(), $success)) {
 			$this->_eventDispatcher->dispatchEvent($responseEvent, 'responseReceived');
 		}
 
@@ -104,7 +104,7 @@ class Transport implements Swift_Transport {
 			$sendEvent->setResult($success ? \Swift_Events_SendEvent::RESULT_SUCCESS : \Swift_Events_SendEvent::RESULT_FAILED);
 			$this->_eventDispatcher->dispatchEvent($sendEvent, 'sendPerformed');
 		}
-		
+
 		return $success
 			? $this->getRecipientCount($message)
 			: 0;

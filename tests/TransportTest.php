@@ -160,15 +160,69 @@ class MailPostmarkTransportTest extends TestCase {
         $this->expectException(\Swift_TransportException::class);
         $transport->send($message);
     }
+
+	public function testMessageStreamViaDefaultHeaders()
+	{
+		$message = new Swift_Message();
+		$message->setFrom('johnny5@example.com', 'Johnny #5');
+		$message->setSubject('Some Subject');
+		$message->addBcc('you@example.com', 'A. Friend');
+		$message->addBcc('other@example.com', 'B. Friend');
+
+		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'your-custom-stream']);
+		$transport->send($message);
+
+		$request = $transport->getHistory()[0]['request'];
+		$body = json_decode($request->getBody()->getContents(), true);
+
+		$this->assertCount(4, $body['Headers']);
+		$this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'your-custom-stream'], $body['Headers'][3]);
+	}
+
+	public function testMessageStreamViaHeaderOverwritesDefaultHeaders()
+	{
+		$message = new Swift_Message();
+		$message->setFrom('johnny5@example.com', 'Johnny #5');
+		$message->setSubject('Some Subject');
+		$message->addBcc('you@example.com', 'A. Friend');
+		$message->addBcc('other@example.com', 'B. Friend');
+		$message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'message-custom-stream');
+
+		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'my-custom-stream']);
+		$transport->send($message);
+
+		$request = $transport->getHistory()[0]['request'];
+		$body = json_decode($request->getBody()->getContents(), true);
+
+		$this->assertCount(4, $body['Headers']);
+		$this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'message-custom-stream'], $body['Headers'][3]);
+	}
+
+	public function testPmTagDeaultHeader()
+	{
+		$message = new Swift_Message();
+		$message->setFrom('johnny5@example.com', 'Johnny #5');
+		$message->setSubject('Some Subject');
+		$message->addBcc('you@example.com', 'A. Friend');
+		$message->addBcc('other@example.com', 'B. Friend');
+
+		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Tag' => 'my-tag']);
+		$transport->send($message);
+
+		$request = $transport->getHistory()[0]['request'];
+		$body = json_decode($request->getBody()->getContents(), true);
+
+		$this->assertEquals('my-tag', $body['Tag']);
+	}
 }
 
 
 class PostmarkTransportStub extends Postmark\Transport {
 	protected $client;
 
-	public function __construct(array $responses = [])
+	public function __construct(array $responses = [], array $defaultHeaders = [])
     {
-        parent::__construct('TESTING_SERVER');
+        parent::__construct('TESTING_SERVER', $defaultHeaders);
 
         $this->client = $this->mockGuzzle($responses);
     }

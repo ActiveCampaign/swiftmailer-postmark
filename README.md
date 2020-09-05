@@ -15,7 +15,7 @@ composer require wildbit/swiftmailer-postmark
 ##### 2. Use the transport to send a message:
 
 ```php
-<?
+<?php
 //import the transport from the standard composer directory:
 require_once('./vendor/autoload.php');
 
@@ -37,7 +37,6 @@ $message->attach($attachment);
 
 //Send the message!
 $mailer->send($message);
-
 ?>
 ```
 

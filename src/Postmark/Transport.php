@@ -27,7 +27,6 @@ class Transport implements Swift_Transport {
 	 */
 	protected $defaultHeaders = [];
 
-
 	/**
 	 * @var \Swift_Events_EventDispatcher
 	 */

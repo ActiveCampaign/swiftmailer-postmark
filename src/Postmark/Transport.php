@@ -21,6 +21,14 @@ class Transport implements Swift_Transport {
 	protected $serverToken;
 
 	/**
+	 * A set of default headers to attach to every message
+	 *
+	 * @var array
+	 */
+	protected $defaultHeaders = [];
+
+
+	/**
 	 * @var \Swift_Events_EventDispatcher
 	 */
 	protected $_eventDispatcher;
@@ -31,8 +39,9 @@ class Transport implements Swift_Transport {
 	 * @param  string  $serverToken The API token for the server from which you will send mail.
 	 * @return void
 	 */
-	public function __construct($serverToken) {
+	public function __construct($serverToken, array $defaultHeaders = []) {
 		$this->serverToken = $serverToken;
+		$this->defaultHeaders = $defaultHeaders;
 		$this->version = phpversion();
 		$this->os = PHP_OS;
 		$this->_eventDispatcher = \Swift_DependencyContainer::getInstance()->lookup('transport.eventdispatcher');
@@ -258,6 +267,7 @@ class Transport implements Swift_Transport {
 	 */
 	protected function processHeaders(&$payload, $message) {
 		$headers = [];
+		$headersSetInMessage = [];
 
 		foreach ($message->getHeaders()->getAll() as $key => $value) {
 			$fieldName = $value->getFieldName();
@@ -265,6 +275,7 @@ class Transport implements Swift_Transport {
 			$excludedHeaders = ['Subject', 'Content-Type', 'MIME-Version', 'Date'];
 
 			if (!in_array($fieldName, $excludedHeaders)) {
+				$headersSetInMessage[$fieldName] = true;
 
 				if ($value instanceof \Swift_Mime_Headers_UnstructuredHeader ||
 					$value instanceof \Swift_Mime_Headers_OpenDKIMHeader) {
@@ -294,6 +305,29 @@ class Transport implements Swift_Transport {
 				}
 			}
 		}
+
+		// we process the default headers after, because in an e-mail every
+		// header can be present multiple times $headers is a list and not
+		// a key-value map. The default headers are only added if there is no
+		// header present with the same name one **or** multiple times.
+		//
+		// Default headers do not support being appended to existing headers
+		// with the same name.
+		foreach ($this->defaultHeaders as $header => $value) {
+			if (isset($headersSetInMessage[$header])) {
+				continue;
+			}
+
+			if ($header === 'X-PM-Tag') {
+				$payload["Tag"] = $value;
+			} else {
+				array_push($headers, [
+					"Name" => $header,
+					"Value" => $value,
+				]);
+			}
+		}
+
 		$payload['Headers'] = $headers;
 	}
 

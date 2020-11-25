@@ -79,5 +79,6 @@ $message = new Swift_Message('Hello from Postmark!');
 $message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'another-stream');
 ```
 
-- The Transport uses the [Postmark API](https://postmarkapp.com/developer) internally to send mail, via the [/email endpoint](https://postmarkapp.com/developer/api/email-api#send-a-single-email).
-- Other sending features such as Batch sending or sending via Templates are currently not supported.
+##### Notes:
+
+- The Transport uses the [Postmark API](https://postmarkapp.com/developer) internally to send mail, via the [/email endpoint](https://postmarkapp.com/developer/api/email-api#send-a-single-email). Other sending features such as Batch sending or sending via Templates are currently not supported.

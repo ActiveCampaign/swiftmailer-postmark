@@ -11,6 +11,6 @@ php:
 
 before_script:
   - composer self-update
-  - composer update --no-interaction --prefer-source --dev
+  - composer update --no-interaction --dev
 
 script: composer test

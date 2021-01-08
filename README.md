@@ -1,5 +1,6 @@
-# swiftmailer-postmark 
-[![Build Status](https://travis-ci.org/wildbit/swiftmailer-postmark.svg?branch=master)](https://travis-ci.org/wildbit/swiftmailer-postmark)
+# swiftmailer-postmark
+
+[![Integrate](https://github.com/wildbit/swiftmailer-postmark/workflows/Integrate/badge.svg)](https://github.com/wildbit/swiftmailer-postmark/actions)
 
 An official Swiftmailer Transport for Postmark.
 

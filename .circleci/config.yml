@@ -51,5 +51,5 @@ jobs:
       - run:
           name: Run tests
           command: composer test
-      - store_artifacts:
-          path: /build/artifacts
+      - store_test_results:
+          path: build/artifacts/test-results

@@ -1,5 +1,5 @@
-# swiftmailer-postmark 
-[![Build Status](https://circleci.com/gh/wildbit/swiftmailer-postmark.svg?style=shield)](https://circleci.com/gh/wildbit/swiftmailer-postmark)
+# swiftmailer-postmark
+[![Build Status](https://circleci.com/gh/ActiveCampaign/swiftmailer-postmark.svg?style=shield)](https://circleci.com/gh/ActiveCampaign/swiftmailer-postmark)
 
 An official Swiftmailer Transport for Postmark.
 

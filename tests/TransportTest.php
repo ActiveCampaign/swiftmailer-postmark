@@ -214,6 +214,18 @@ class MailPostmarkTransportTest extends TestCase {
 
     $this->assertEquals('my-tag', $body['Tag']);
   }
+
+  public function testMessageIdDefaultHeader()
+  {
+    $message = new Swift_Message();
+
+    $transport = new PostmarkTransportStub([new Response(200, [], '{"MessageID": "MESSAGE_ID"}')]);
+    $transport->send($message);
+
+    $postmarkID = $message->getHeaders()->get('X-PM-Message-Id')->getValue();
+
+    $this->assertEquals($postmarkID, "MESSAGE_ID");
+  }
 }
 
 

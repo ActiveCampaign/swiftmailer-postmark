@@ -110,11 +110,11 @@ class MailPostmarkTransportTest extends TestCase {
         $message->setSubject('Some Subject');
         $message->addTo('you@example.com', 'A. Friend');
         $transport = new PostmarkTransportStub([new Response(200)]);
-     
+
         $redirectAddress = 'test@test.com';
 
         $transport->registerPlugin(new Swift_Plugins_RedirectingPlugin('test@test.com'));
-        
+
         $o = PHP_OS;
         $v = phpversion();
 

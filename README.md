@@ -5,14 +5,14 @@ An official Swiftmailer Transport for Postmark.
 
 Send mail through Postmark from your favorite PHP frameworks!
 
-You're just steps away from super simple sending via Postmark:
+## Usage
 
-##### 1. Include this package in your project:
+### 1. Include this package in your project:
 
 ```bash
 composer require wildbit/swiftmailer-postmark
 ```
-##### 2. Use the transport to send a message:
+### 2. Use the transport to send a message:
 
 ```php
 <?php
@@ -40,7 +40,7 @@ $mailer->send($message);
 ?>
 ```
 
-##### 3. Throw exceptions on Postmark api errors:
+### 3. Throw exceptions on Postmark api errors:
 
 ```php
 $transport = new \Postmark\Transport('<SERVER_TOKEN>');
@@ -50,7 +50,7 @@ $message = new Swift_Message('Hello from Postmark!');
 $mailer->send($message); // Exception is throw when response !== 200
 ```
 
-##### 4. Use default headers:
+### 4. Use default headers:
 
 You can set default headers at Transport-level, to be set on every message, unless overwritten.
 
@@ -65,7 +65,7 @@ $message = new Swift_Message('Hello from Postmark!');
 $message->getHeaders()->addTextHeader('X-PM-Tag', 'custom-tag');
 ```
 
-##### 5. Setting the Message Stream:
+### 5. Setting the Message Stream:
 
 By default, the "outbound" transactional stream will be used when sending messages.
 
@@ -79,7 +79,7 @@ $message = new Swift_Message('Hello from Postmark!');
 $message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'another-stream');
 ```
 
-##### 6. Getting the Postmark Message ID after sending
+### 6. Getting the Postmark Message ID after sending
 After sending the mail to Postmark, it is possible to get the Postmark ID.
 
 ```php 
@@ -93,6 +93,11 @@ $mailer->send($message);
 $postmarkID = $message->getHeaders()->get('X-PM-Message-Id')->getValue();
 ```
 
-##### Notes:
+## Releasing a new version
+
+Swiftmailer Transport uses [packagist](https://packagist.org/packages/wildbit/swiftmailer-postmark).
+To publish a new version, simply create a new release on GitHub tagged with the version number.
+
+## Notes:
 
 - The Transport uses the [Postmark API](https://postmarkapp.com/developer) internally to send mail, via the [/email endpoint](https://postmarkapp.com/developer/api/email-api#send-a-single-email). Other sending features such as Batch sending or sending via Templates are currently not supported by this library.

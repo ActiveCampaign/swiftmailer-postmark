@@ -11,38 +11,38 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 class MailPostmarkTransportTest extends TestCase {
 
-	public function testSend() {
-		$message = new Swift_Message();
-		$message->setFrom('johnny5@example.com', 'Johnny #5');
-		$message->setSubject('Is alive!');
-		$message->addTo('you@example.com', 'A. Friend');
-		$message->addTo('you+two@example.com');
-		$message->addCc('another+1@example.com');
-		$message->addCc('another+2@example.com', 'Extra 2');
-		$message->addBcc('another+3@example.com');
-		$message->addBcc('another+4@example.com', 'Extra 4');
-		$message->addPart('<q>Help me Rhonda</q>', 'text/html');
-		$message->addPart('Doo-wah-ditty.', 'text/plain');
+  public function testSend() {
+    $message = new Swift_Message();
+    $message->setFrom('johnny5@example.com', 'Johnny #5');
+    $message->setSubject('Is alive!');
+    $message->addTo('you@example.com', 'A. Friend');
+    $message->addTo('you+two@example.com');
+    $message->addCc('another+1@example.com');
+    $message->addCc('another+2@example.com', 'Extra 2');
+    $message->addBcc('another+3@example.com');
+    $message->addBcc('another+4@example.com', 'Extra 4');
+    $message->addPart('<q>Help me Rhonda</q>', 'text/html');
+    $message->addPart('Doo-wah-ditty.', 'text/plain');
 
-		$attachment = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		$attachment2 = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
-		$attachment2->setDisposition('inline');
+    $attachment = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
+    $attachment2 = new Swift_Attachment('This is the plain text attachment.', 'hello.txt', 'text/plain');
+    $attachment2->setDisposition('inline');
 
-		$message->attach($attachment);
-		$message->attach($attachment2);
-		$message->setPriority(1);
+    $message->attach($attachment);
+    $message->attach($attachment2);
+    $message->setPriority(1);
 
-		$headers = $message->getHeaders();
-		$headers->addTextHeader('X-PM-Tag', 'movie-quotes');
+    $headers = $message->getHeaders();
+    $headers->addTextHeader('X-PM-Tag', 'movie-quotes');
 
-		$transport = new PostmarkTransportStub([new Response(200)]);
+    $transport = new PostmarkTransportStub([new Response(200)]);
 
-		$recipientCount = $transport->send($message);
+    $recipientCount = $transport->send($message);
 
-		$this->assertEquals(6, $recipientCount);
-		$transaction = $transport->getHistory()[0];
-		$this->assertExpectedMessageRequest($message, $transaction['request']);
-	}
+    $this->assertEquals(6, $recipientCount);
+    $transaction = $transport->getHistory()[0];
+    $this->assertExpectedMessageRequest($message, $transaction['request']);
+  }
 
     protected function assertExpectedMessageRequest($message, $request)
     {
@@ -80,9 +80,9 @@ class MailPostmarkTransportTest extends TestCase {
                 ],
             ]
         ], json_decode($request->getBody()->getContents(), true));
-	}
+  }
 
-	public function testCanSendEmailsWithCCs()
+  public function testCanSendEmailsWithCCs()
     {
         $message = new Swift_Message();
         $message->setFrom('johnny5@example.com', 'Johnny #5');
@@ -161,66 +161,66 @@ class MailPostmarkTransportTest extends TestCase {
         $transport->send($message);
     }
 
-	public function testMessageStreamViaDefaultHeaders()
-	{
-		$message = new Swift_Message();
-		$message->setFrom('johnny5@example.com', 'Johnny #5');
-		$message->setSubject('Some Subject');
-		$message->addBcc('you@example.com', 'A. Friend');
-		$message->addBcc('other@example.com', 'B. Friend');
+  public function testMessageStreamViaDefaultHeaders()
+  {
+    $message = new Swift_Message();
+    $message->setFrom('johnny5@example.com', 'Johnny #5');
+    $message->setSubject('Some Subject');
+    $message->addBcc('you@example.com', 'A. Friend');
+    $message->addBcc('other@example.com', 'B. Friend');
 
-		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'your-custom-stream']);
-		$transport->send($message);
+    $transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'your-custom-stream']);
+    $transport->send($message);
 
-		$request = $transport->getHistory()[0]['request'];
-		$body = json_decode($request->getBody()->getContents(), true);
+    $request = $transport->getHistory()[0]['request'];
+    $body = json_decode($request->getBody()->getContents(), true);
 
-		$this->assertCount(4, $body['Headers']);
-		$this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'your-custom-stream'], $body['Headers'][3]);
-	}
+    $this->assertCount(4, $body['Headers']);
+    $this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'your-custom-stream'], $body['Headers'][3]);
+  }
 
-	public function testMessageStreamViaHeaderOverwritesDefaultHeaders()
-	{
-		$message = new Swift_Message();
-		$message->setFrom('johnny5@example.com', 'Johnny #5');
-		$message->setSubject('Some Subject');
-		$message->addBcc('you@example.com', 'A. Friend');
-		$message->addBcc('other@example.com', 'B. Friend');
-		$message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'message-custom-stream');
+  public function testMessageStreamViaHeaderOverwritesDefaultHeaders()
+  {
+    $message = new Swift_Message();
+    $message->setFrom('johnny5@example.com', 'Johnny #5');
+    $message->setSubject('Some Subject');
+    $message->addBcc('you@example.com', 'A. Friend');
+    $message->addBcc('other@example.com', 'B. Friend');
+    $message->getHeaders()->addTextHeader('X-PM-Message-Stream', 'message-custom-stream');
 
-		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'my-custom-stream']);
-		$transport->send($message);
+    $transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Message-Stream' => 'my-custom-stream']);
+    $transport->send($message);
 
-		$request = $transport->getHistory()[0]['request'];
-		$body = json_decode($request->getBody()->getContents(), true);
+    $request = $transport->getHistory()[0]['request'];
+    $body = json_decode($request->getBody()->getContents(), true);
 
-		$this->assertCount(4, $body['Headers']);
-		$this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'message-custom-stream'], $body['Headers'][3]);
-	}
+    $this->assertCount(4, $body['Headers']);
+    $this->assertEquals(['Name' => 'X-PM-Message-Stream', 'Value' => 'message-custom-stream'], $body['Headers'][3]);
+  }
 
-	public function testPmTagDeaultHeader()
-	{
-		$message = new Swift_Message();
-		$message->setFrom('johnny5@example.com', 'Johnny #5');
-		$message->setSubject('Some Subject');
-		$message->addBcc('you@example.com', 'A. Friend');
-		$message->addBcc('other@example.com', 'B. Friend');
+  public function testPmTagDeaultHeader()
+  {
+    $message = new Swift_Message();
+    $message->setFrom('johnny5@example.com', 'Johnny #5');
+    $message->setSubject('Some Subject');
+    $message->addBcc('you@example.com', 'A. Friend');
+    $message->addBcc('other@example.com', 'B. Friend');
 
-		$transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Tag' => 'my-tag']);
-		$transport->send($message);
+    $transport = new PostmarkTransportStub([new Response(200)], ['X-PM-Tag' => 'my-tag']);
+    $transport->send($message);
 
-		$request = $transport->getHistory()[0]['request'];
-		$body = json_decode($request->getBody()->getContents(), true);
+    $request = $transport->getHistory()[0]['request'];
+    $body = json_decode($request->getBody()->getContents(), true);
 
-		$this->assertEquals('my-tag', $body['Tag']);
-	}
+    $this->assertEquals('my-tag', $body['Tag']);
+  }
 }
 
 
 class PostmarkTransportStub extends Postmark\Transport {
-	protected $client;
+  protected $client;
 
-	public function __construct(array $responses = [], array $defaultHeaders = [])
+  public function __construct(array $responses = [], array $defaultHeaders = [])
     {
         parent::__construct('TESTING_SERVER', $defaultHeaders);
 

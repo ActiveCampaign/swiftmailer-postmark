@@ -108,6 +108,12 @@ class Transport implements Swift_Transport {
 			$this->_eventDispatcher->dispatchEvent($responseEvent, 'responseReceived');
 		}
 
+		// Get the Postmark message ID
+		$jsonResponse = json_decode($response->getBody()->__toString(), true);
+		if (isset($jsonResponse['MessageID'])) {
+		    $message->getHeaders()->addTextHeader('X-PM-Message-Id', $jsonResponse['MessageID']);
+		}
+
 		if ($sendEvent) {
 			$sendEvent->setResult($success ? \Swift_Events_SendEvent::RESULT_SUCCESS : \Swift_Events_SendEvent::RESULT_FAILED);
 			$this->_eventDispatcher->dispatchEvent($sendEvent, 'sendPerformed');

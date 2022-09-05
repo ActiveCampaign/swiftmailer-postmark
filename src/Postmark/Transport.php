@@ -278,14 +278,24 @@ class Transport implements Swift_Transport {
 
 				if ($value instanceof \Swift_Mime_Headers_UnstructuredHeader ||
 					$value instanceof \Swift_Mime_Headers_OpenDKIMHeader) {
-					if($fieldName != 'X-PM-Tag'){
-						array_push($headers, [
-							"Name" => $fieldName,
-							"Value" => $value->getValue(),
-						]);
-					}else{
-						$payload["Tag"] = $value->getValue();
+
+					$reservedFields = [
+						'X-PM-Tag' => 'Tag',
+						'X-PM-TrackOpens' => 'TrackOpens',
+						'X-PM-TrackLinks' => 'TrackLinks',
+					];
+
+					foreach ($reservedFields as $headerName => $payloadName) {
+						if($fieldName == $headerName){
+							$payload[$payloadName] = $value->getValue();
+							continue 2;
+						}
 					}
+
+					array_push($headers, [
+						"Name" => $fieldName,
+						"Value" => $value->getValue(),
+					]);
 				} else if ($value instanceof \Swift_Mime_Headers_DateHeader ||
 					$value instanceof \Swift_Mime_Headers_IdentificationHeader ||
 					$value instanceof \Swift_Mime_Headers_ParameterizedHeader ||

@@ -1,8 +1,4 @@
 {
-    "repositories": [{
-        "type": "composer",
-        "url": "https://packagist.org"
-    }],
     "name": "wildbit/swiftmailer-postmark",
     "description": "A Swiftmailer Transport for Postmark.",
     "require": {
@@ -26,8 +22,6 @@
     },
     "scripts" : {
       "test" : "phpunit"  
-    },
-    "suggest": {
     },
     "authors": [{
         "name": "Postmark",
